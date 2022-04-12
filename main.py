@@ -1,10 +1,12 @@
 import random
 import matplotlib.pyplot as plt
 
-#import dfs
+import fullSearch
 import greedy
+import time
+
 """
-1. dfs (0/1)
+1. dfs (1/1)
 2. bfs (0/1)
 3. greedy najbliższego sąsiada (1/1)
 4. greedy własny (0/1)
@@ -23,7 +25,7 @@ h=n *f(k)
 k->zbiór dostępnych krawędzi
 f->{avg,min}
 """
-size = 7
+size = 9
 allRoads = False
 symmetrical = False
 INT_MAX = 2147483647
@@ -74,12 +76,12 @@ def adjacency_matrix_generator(vertices_list):
         adjacency_matrix.append(matrix_row)
     return adjacency_matrix
 
+
 def roads(adj_matrix):
     all_roads = size ** 2
     allPossible = size * (size - 1)  # miasta nie są połączone same ze sobą
     allInf = sum(a.count(float("inf")) for a in adj_matrix)
     return ((all_roads - allInf) / allPossible) * 100
-
 
 
 if __name__ == '__main__':
@@ -98,42 +100,20 @@ if __name__ == '__main__':
 
     print("Available roads: " + str(round(roads(matrix), 2)) + "%")
 
+    start_time = time.perf_counter()
     greedyAnswer = greedy.greedy_min(matrix, 0)
-    print(f"Greedy: {greedyAnswer}")
+    gr_time = (time.perf_counter() - start_time)
 
-    def get_row(matrix, x):
-        return matrix[x]
+    my_dfs = fullSearch.dfs(matrix)
+    my_dfs.find_paths(0)
 
+    print(f'Liczba dostępnych tras: {len(my_dfs.paths)}')
 
-    def dfs(matrix, start, path, cost):
-        if len(path) == len(matrix):
-            row = get_row(matrix, start)
-            if row[path[0]] != float("inf"):
-                path.append(path[0])
-                new_cost = cost + row[path[0]]
-                path.append(new_cost)
-                paths.append(path)
-                return
-            return
+    algorithms = [['DFS: ', my_dfs.time, my_dfs.shortest[0], my_dfs.shortest[1]],
+                  ['Greedy:', gr_time, greedyAnswer[0], greedyAnswer[1]]]
 
-        row = get_row(matrix, start)
-        for i in range(len(row)):
-            if i not in path:
-                if row[i] != float("inf"):
-                    new_path = path.copy()
-                    new_path.append(i)
-
-                    new_cost = cost + row[i]
-                    dfs(matrix, i, new_path, new_cost)
-
-
-    paths = []
-    my_dfs = dfs(matrix,0,[0], 0)
-
-    x = len(paths[0]) - 1
-    paths.sort(key= lambda i:i[x])
-    print(f'Znalezionych przez dfs tras: {len(paths)}')
-    print(f'Najkrótsza: {paths[0]}')
-
-    #[print(row) for row in paths]
+    print('Algorytm: |Czas    |Koszt  |Scieżka')
+    print('----------+--------+-------+----------------------')
+    for row in algorithms:
+        print(f'{row[0]:10}|{row[1]:7.2E}|{row[2]:6.2f} | {row[3]}')
 
