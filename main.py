@@ -25,7 +25,7 @@ h=n *f(k)
 k->zbiór dostępnych krawędzi
 f->{avg,min}
 """
-size = 9
+size = 5
 allRoads = False
 symmetrical = False
 INT_MAX = 2147483647
@@ -104,16 +104,22 @@ if __name__ == '__main__':
     greedyAnswer = greedy.greedy_min(matrix, 0)
     gr_time = (time.perf_counter() - start_time)
 
-    my_dfs = fullSearch.dfs(matrix)
-    my_dfs.find_paths(0)
+    dfs = fullSearch.Dfs(matrix)
+    dfs.find_paths(0)
 
-    print(f'Liczba dostępnych tras: {len(my_dfs.paths)}')
+    bfs = fullSearch.Bfs(matrix)
+    bfs.find_paths(0)
+    print(bfs.paths)
+    print(len(bfs.paths))
 
-    algorithms = [['DFS: ', my_dfs.time, my_dfs.shortest[0], my_dfs.shortest[1]],
+    print(f'Liczba dostępnych tras: {len(dfs.paths)}')
+    print('=================================================')
+
+    algorithms = [['DFS: ', dfs.time, dfs.shortest[0], dfs.shortest[1]],
                   ['Greedy:', gr_time, greedyAnswer[0], greedyAnswer[1]]]
 
     print('Algorytm: |Czas    |Koszt  |Scieżka')
-    print('----------+--------+-------+----------------------')
+    print('----------+--------+-------+'+'-'*size*4)
     for row in algorithms:
         print(f'{row[0]:10}|{row[1]:7.2E}|{row[2]:6.2f} | {row[3]}')
 
