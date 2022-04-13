@@ -1,31 +1,34 @@
-def greedy(adj_matrix, start, cost=0, visited=None):
-    if visited is None:
-        visited = []
-    current_cost = float("inf")
-    current_node = None
+import numpy as np
+import time
 
-    if len(visited) == len(adj_matrix):
-        return cost, visited
 
-    for city in range(len(adj_matrix)):
-        if city != start and city not in visited:
-            if adj_matrix[start][city] <= current_cost:
-                current_cost = adj_matrix[start][city]
-                current_node = city
+class NN:
+    def __init__(self, matrix):
+        self.matrix = np.array(matrix)
+        self.path = []
+        self.time = None
+        self.start_time = 0
 
-    cost = cost + current_cost
-    visited.append(current_node)
+    def get_row(self, x):
+        return self.matrix[x]
 
-    cost, visited = greedy(adj_matrix, current_node, cost, visited)
+    def find_path(self, start=0):
+        self.start_time = time.perf_counter()
+        self.path = [0, [start]]
 
-    return cost, visited
-
-def greedy_min(adj_matrix, start):
-    visited = [start]
-
-    cost, visited = greedy(adj_matrix, 0, 0, visited)
-    cost += adj_matrix[visited[-1]][start]
-
-    visited.append(start)
-
-    return cost, visited
+        while len(self.path[1]) < len(self.matrix):
+            row = self.get_row(self.path[1][-1])
+            current_cost = float("inf")
+            city = None
+            for c in range(len(row)):
+                if c not in self.path[1]:
+                    if row[c] <= current_cost:
+                        current_cost = row[c]
+                        city = c
+            self.path[0] = self.path[0] + current_cost
+            self.path[1].append(city)
+        # dodatnie pounktu startowego
+        row = self.get_row(self.path[1][-1])
+        self.path[0] = self.path[0] + row[start]
+        self.path[1].append(start)
+        self.time = time.perf_counter() - self.start_time

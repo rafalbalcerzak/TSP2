@@ -1,13 +1,13 @@
 import random
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 import fullSearch
 import greedy
-import time
+
 
 """
 1. dfs (1/1)
-2. bfs (0/1)
+2. bfs (1/1)
 3. greedy najbliższego sąsiada (1/1)
 4. greedy własny (0/1)
 5. mechanizm nawrotów (0/1)
@@ -26,6 +26,7 @@ k->zbiór dostępnych krawędzi
 f->{avg,min}
 """
 size = 5
+start_city = 0
 allRoads = False
 symmetrical = False
 INT_MAX = 2147483647
@@ -66,13 +67,13 @@ def city_distance(x, y):
 def adjacency_matrix_generator(vertices_list):
     adjacency_matrix = list()
 
-    for vertice in vertices_list:
+    for vertices in vertices_list:
         matrix_row = list()
         for j in vertices_list:
-            if vertice == j:
+            if vertices == j:
                 matrix_row.append(float("inf"))
             else:
-                matrix_row.append(city_distance(vertice, j))
+                matrix_row.append(city_distance(vertices, j))
         adjacency_matrix.append(matrix_row)
     return adjacency_matrix
 
@@ -85,41 +86,37 @@ def roads(adj_matrix):
 
 
 if __name__ == '__main__':
+    # generowanie miast
     cities = list()
     for i in range(0, size):
         cities.append(city_generator())
-    print("Cities:")
-    print(cities)
 
     matrix = adjacency_matrix_generator(cities)
 
     print("Adjacency matrix:")
-
     for row in matrix:
         print('\t'.join([str(round(x, 1)).rjust(4) for x in row]))
 
     print("Available roads: " + str(round(roads(matrix), 2)) + "%")
 
-    start_time = time.perf_counter()
-    greedyAnswer = greedy.greedy_min(matrix, 0)
-    gr_time = (time.perf_counter() - start_time)
-
     dfs = fullSearch.Dfs(matrix)
-    dfs.find_paths(0)
+    dfs.find_path(start_city)
 
     bfs = fullSearch.Bfs(matrix)
-    bfs.find_paths(0)
-    print(bfs.paths)
-    print(len(bfs.paths))
+    bfs.find_path(start_city)
 
+    nn = greedy.NN(matrix)
+    nn.find_path(start_city)
+
+    print(f'Liczba wszystkich tras: {len(bfs.paths)}')
     print(f'Liczba dostępnych tras: {len(dfs.paths)}')
     print('=================================================')
 
     algorithms = [['DFS: ', dfs.time, dfs.shortest[0], dfs.shortest[1]],
-                  ['Greedy:', gr_time, greedyAnswer[0], greedyAnswer[1]]]
+                  ['BFS', bfs.time, bfs.shortest[0], bfs.shortest[1]],
+                  ['NN:', nn.time, nn.path[0], nn.path[1]]]
 
     print('Algorytm: |Czas    |Koszt  |Scieżka')
-    print('----------+--------+-------+'+'-'*size*4)
+    print('----------+--------+-------+' + '-' * size * 4)
     for row in algorithms:
         print(f'{row[0]:10}|{row[1]:7.2E}|{row[2]:6.2f} | {row[3]}')
-
