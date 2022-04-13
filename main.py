@@ -1,6 +1,6 @@
 import random
-# import matplotlib.pyplot as plt
-
+import matplotlib.pyplot as plt
+import numpy as np
 import fullSearch
 import greedy
 
@@ -87,9 +87,10 @@ def roads(adj_matrix):
 
 if __name__ == '__main__':
     # generowanie miast
-    cities = list()
+    cities = []
     for i in range(0, size):
         cities.append(city_generator())
+
 
     matrix = adjacency_matrix_generator(cities)
 
@@ -120,3 +121,20 @@ if __name__ == '__main__':
     print('----------+--------+-------+' + '-' * size * 4)
     for row in algorithms:
         print(f'{row[0]:10}|{row[1]:7.2E}|{row[2]:6.2f} | {row[3]}')
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    c = np.array(cities)
+    ax.scatter(c[:, 0], c[:, 1], c[:, 2])
+
+    path = dfs.shortest[1]
+    for i in range(len(path)-1):
+        cn = path[i]
+        ncn = path[i+1]
+        ax.plot([cities[cn][0], cities[ncn][0]],
+                [cities[cn][1], cities[ncn][1]],
+                [cities[cn][2], cities[ncn][2]],
+                c='red')
+    plt.show()
+
+
