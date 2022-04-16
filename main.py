@@ -4,32 +4,10 @@ import numpy as np
 import fullSearch
 import greedy
 
-
-"""
-1. dfs (1/1)
-2. bfs (1/1)
-3. greedy najbliższego sąsiada (1/1)
-4. greedy własny (0/1)
-5. mechanizm nawrotów (0/1)
-    -algorytm A*
-    -porównać heurystyki:
-        -minimalną 
-        -średnią, powinna być szybsza
-
-
-"""
-"""
-od zbioru wszsytkich dróg, odejmuje odwiedzone (G-V-NR), średnią i min wyliczam z pozostałych dróg?
-c = k + h
-h=n *f(k)
-k->zbiór dostępnych krawędzi
-f->{avg,min}
-"""
-size = 5
+size = 7
 start_city = 0
-allRoads = False
+allRoads = True
 symmetrical = False
-INT_MAX = 2147483647
 
 
 def euclidean(x, y):
@@ -86,19 +64,15 @@ def roads(adj_matrix):
 
 
 if __name__ == '__main__':
-    # generowanie miast
     cities = []
     for i in range(0, size):
         cities.append(city_generator())
-
 
     matrix = adjacency_matrix_generator(cities)
 
     print("Adjacency matrix:")
     for row in matrix:
         print('\t'.join([str(round(x, 1)).rjust(4) for x in row]))
-
-    print("Available roads: " + str(round(roads(matrix), 2)) + "%")
 
     dfs = fullSearch.Dfs(matrix)
     dfs.find_path(start_city)
@@ -109,19 +83,28 @@ if __name__ == '__main__':
     nn = greedy.NN(matrix)
     nn.find_path(start_city)
 
-    print(f'Liczba wszystkich tras: {len(bfs.paths)}')
-    print(f'Liczba dostępnych tras: {len(dfs.paths)}')
+    nnMean = greedy.NnMean(matrix)
+    nnMean.find_path(start_city)
+
+    print('=================================================')
+    print("Dostępne drogi w grafie: " + str(round(roads(matrix), 2)) + "%")
+    print(f'Liczba wszystkich tras:    {len(bfs.paths)}')
+    print(f'Liczba dostępnych tras:    {len(dfs.paths)}')
+    print(f'Najdłuższa możliwa trasa: {dfs.paths[-1][0]: .2f}')
     print('=================================================')
 
     algorithms = [['DFS: ', dfs.time, dfs.shortest[0], dfs.shortest[1]],
                   ['BFS', bfs.time, bfs.shortest[0], bfs.shortest[1]],
-                  ['NN:', nn.time, nn.path[0], nn.path[1]]]
+                  ['NN:', nn.time, nn.path[0], nn.path[1]],
+                  ['NNMean', nnMean.time, nnMean.path[0], nnMean.path[1]]
+                  ]
 
     print('Algorytm: |Czas    |Koszt  |Scieżka')
     print('----------+--------+-------+' + '-' * size * 4)
     for row in algorithms:
         print(f'{row[0]:10}|{row[1]:7.2E}|{row[2]:6.2f} | {row[3]}')
 
+'''
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     c = np.array(cities)
@@ -136,5 +119,5 @@ if __name__ == '__main__':
                 [cities[cn][2], cities[ncn][2]],
                 c='red')
     plt.show()
-
+'''
 
